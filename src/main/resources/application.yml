@@ -17,7 +17,7 @@ spring:
     serialization:
       write-dates-as-timestamps: false
   application:
-    name: gateway
+    name: rsw-gateway
   profiles:
 #    active: github
     active: rossoauth2

@@ -1,6 +1,6 @@
 host:
   authServer: http://130.211.147.91
-  productApi: http://product-api
+  productApi: http://rsw-product-api
 
 
 spring:

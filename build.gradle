@@ -17,8 +17,8 @@ apply plugin: 'docker'
 
 
 jar {
-	baseName = 'gateway'
-	version = '0.0.1-SNAPSHOT'
+	baseName = 'rsw-gateway'
+	version = '0.0.1'
 }
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -33,7 +33,7 @@ docker {
 
 task buildDocker(type: Docker, dependsOn: build) {
     push = false
-    tag = "gcr.io/inspired-nomad-149920/gateway-demo"
+    tag = "gcr.io/inspired-nomad-149920/rsw-gateway"
     tagVersion = "v1"
     dockerfile = file('src/main/docker/Dockerfile')
     doFirst {
