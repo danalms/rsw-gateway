@@ -1,0 +1,29 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: gateway
+# deployment/replication controller spec
+spec:
+  replicas: 2
+# pod template
+  template:
+    metadata:
+      labels:
+        app: gateway
+        role: proxy
+        tier: backend
+# pod spec
+    spec:
+      containers:
+      - name: gateway
+        image: gcr.io/inspired-nomad-149920/gateway-demo:v1
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: 250m
+            memory: 1024M
+        env:
+        - name: GET_HOSTS_FROM
+          value: dns
+        ports:
+        - containerPort: 8080

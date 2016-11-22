@@ -1,0 +1,129 @@
+server:
+  port: 8080
+
+host:
+# 58745 is reverse proxy for 9000
+# 59160 is reverse proxy for 8090
+  authServer: http://localhost:9000
+#  authServer: http://localhost:58745
+  productApi: http://localhost:8090
+#  productApi: http://localhost:59160
+
+ribbon:
+  eureka:
+    enabled: false
+spring:
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+  application:
+    name: gateway
+  profiles:
+#    active: github
+    active: rossoauth2
+#    active: rossjwt
+
+zuul:
+  routes:
+    product-api:
+      path: /api/product/**
+      url: ${host.productApi}/api/v1/product
+
+    swagger-product:
+      path: /swagger/product/api/**
+      url: ${host.productApi}/api
+    swagger-product-root:
+      path: /swagger/product/**
+      url: ${host.productApi}/v2/api-docs
+
+#
+# The proxy.auth.routes properties dictate downstream token handling properties when @EnableOAuth2Sso is in effect.
+# Note that to use passthru, Spring security would need to be disabled on the Gateway since the security filters
+# are protecting Zuul, which triggers oauth2 token exchanges in this case
+#   Values:
+#     oauth2 : (default) token relay, for services that act as clients and want their own token
+#     passthru: bearer token passed through as-is to downstream service
+#     none: no token is passed through
+#
+proxy:
+  auth:
+    routes:
+      product-api: oauth2
+      swagger-product: oauth2
+#      product-api: passthru
+#      swagger-product: passthru
+
+logging:
+  level:
+    org.springframework.cloud.netflix.zuul: debug
+    org.springframework.security: info
+
+---
+
+spring:
+  profiles: github
+
+# External Auth - github using oauth2 tokens
+#  This clientId has an OAuth2 application authorization configured which expects the client to be localhost:8080
+security:
+  oauth2:
+    client:
+      clientId: 7f4d9a2a316f28a4e2f0
+      clientSecret: 9f7172c07f57b341d8f804bc700fcb3c8e3672b4
+      accessTokenUri: https://github.com/login/oauth/access_token
+      userAuthorizationUri: https://github.com/login/oauth/authorize
+      clientAuthenticationScheme: form
+      access-token-validity-seconds: 30
+    resource:
+      userInfoUri: https://api.github.com/user
+      preferTokenInfo: false
+  basic:
+    enabled: false
+  sessions: stateless
+
+---
+
+spring:
+  profiles: rossoauth2
+
+# Internal Auth server using oauth2 tokens
+security:
+  oauth2:
+    client:
+      clientId: rsw
+      clientSecret: rswsecret
+      accessTokenUri: ${host.authServer}/oauth/token
+      userAuthorizationUri: ${host.authServer}/oauth/authorize
+    resource:
+      userInfoUri: ${host.authServer}/accountdetails
+  basic:
+    enabled: false
+  sessions: stateless
+
+# this is done to avoid cookie domain/path confusion
+server:
+  context-path: /gw
+
+---
+
+spring:
+  profiles: rossjwt
+
+# Internal Auth server using JWT tokens
+security:
+  oauth2:
+    client:
+      clientId: rsw
+      clientSecret: rswsecret
+      accessTokenUri: ${host.authServer}/oauth/token
+      userAuthorizationUri: ${host.authServer}/oauth/authorize
+    resource:
+      jwt:
+        keyValue: abracadabra
+  basic:
+    enabled: false
+  sessions: stateless
+
+# this is done to avoid cookie domain/path confusion
+server:
+  context-path: /gw

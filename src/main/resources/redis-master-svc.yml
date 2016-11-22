@@ -1,0 +1,22 @@
+#
+# Use of this assumes the client can distinguish between read and write operations:
+#  slaves are for reading, master is for writing
+# The Spring Boot - Spring Session configuration implemented currently doesn't support that, so only use master now
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-master
+  labels:
+    app: redis
+    role: master
+    tier: backend
+spec:
+  ports:
+    # the port that this service should serve on
+  - port: 6379
+    targetPort: 6379
+  selector:
+    app: redis
+    role: master
+    tier: backend

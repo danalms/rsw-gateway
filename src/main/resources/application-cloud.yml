@@ -1,0 +1,12 @@
+host:
+  authServer: http://130.211.147.91
+  productApi: http://product-api
+
+
+spring:
+# not using password
+  redis:
+    host: redis-master
+    port: 6379
+
+
