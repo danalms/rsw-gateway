@@ -11,9 +11,9 @@ import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
  */
 @EnableZuulProxy
 @SpringBootApplication(exclude = SessionAutoConfiguration.class)
-public class GatewayApplication {
+public class RswGatewayApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(GatewayApplication.class, args);
+		SpringApplication.run(RswGatewayApplication.class, args);
 	}
 }
