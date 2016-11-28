@@ -95,7 +95,7 @@ security:
       accessTokenUri: ${host.authServer}/oauth/token
       userAuthorizationUri: ${host.authServer}/oauth/authorize
     resource:
-      userInfoUri: ${host.authServer}/accountdetails
+      userInfoUri: ${host.authServer}/user
   basic:
     enabled: false
   sessions: stateless
