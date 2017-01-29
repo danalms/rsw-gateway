@@ -1,13 +1,21 @@
 server:
   port: 8080
 
-host:
-# 58745 is reverse proxy for 9000
-# 59160 is reverse proxy for 8090
-  authServer: http://localhost:9000
-#  authServer: http://localhost:58745
-  productApi: http://localhost:8090
-#  productApi: http://localhost:59160
+#
+# profiles:
+#  github, sso : demonstrates redirecting to github to authenticate rather than the local auth server
+#  rossoauth2, sso : SSO, redirects to local auth server using code grant to authenticate.  uses simple oauth2 tokens
+#  rossjwt, sso : SSO, redirects to local auth server using code grant to authenticate.  uses JWT tokens
+#  default: No SSO, assumes a JWT token is provided - no automatic redirect
+#
+#
+gateway:
+  swagger:
+    docketUri: /v2/api-docs
+  services:
+    token: http://localhost:8085
+    auth: http://localhost:9000
+    product: http://localhost:8090
 
 ribbon:
   eureka:
@@ -19,47 +27,42 @@ spring:
   application:
     name: rsw-gateway
   profiles:
-#    active: github
-    active: rossoauth2
-#    active: rossjwt
+#     active: sso, rossjwt
+     active: nosso, rossjwt
+#    active: github, sso
+#    active: rossoauth2, sso
 
 zuul:
   routes:
-    product-api:
-      path: /api/product/**
-      url: ${host.productApi}/api/v1/product
+    product-service:
+      path: /api/*/product/**
+      url: ${gateway.services.product}
+      stripPrefix: false
+    token-service:
+      path: /util/token/**
+      url: ${gateway.services.token}/util/token
 
-    swagger-product:
-      path: /swagger/product/api/**
-      url: ${host.productApi}/api
-    swagger-product-root:
-      path: /swagger/product/**
-      url: ${host.productApi}/v2/api-docs
+# As long as the downstream URI pattern matches the Zuul route (/api/patient), we don't need the special
+# "swagger-patient" routes below for the Swagger-initiated API requests. Retain this in case that changes.
+# See notes in SwaggerDocketController for more info
 
-#
-# The proxy.auth.routes properties dictate downstream token handling properties when @EnableOAuth2Sso is in effect.
-# Note that to use passthru, Spring security would need to be disabled on the Gateway since the security filters
-# are protecting Zuul, which triggers oauth2 token exchanges in this case
-#   Values:
-#     oauth2 : (default) token relay, for services that act as clients and want their own token
-#     passthru: bearer token passed through as-is to downstream service
-#     none: no token is passed through
-#
-proxy:
-  auth:
-    routes:
-      product-api: oauth2
-      swagger-product: oauth2
-#      product-api: passthru
-#      swagger-product: passthru
+# Block cookie header fields, but allow Authorization to pass through (disallowed by default)
+# Note: this is mostly pertinent in non-SSO ResourceServer mode; for SSO, gateway will re-write Authorization anyway
+  sensitive-headers: Cookie, Set-Cookie
+# by default, zuul will add proxy headers, e.g. x-forwarded-host and x-forwarded-prefix, should leave on in general
+#  add-proxy-headers: false
 
 logging:
   level:
     org.springframework.cloud.netflix.zuul: debug
     org.springframework.security: info
 
----
+security:
+  basic:
+    enabled: false
+  sessions: stateless
 
+---
 spring:
   profiles: github
 
@@ -77,12 +80,8 @@ security:
     resource:
       userInfoUri: https://api.github.com/user
       preferTokenInfo: false
-  basic:
-    enabled: false
-  sessions: stateless
 
 ---
-
 spring:
   profiles: rossoauth2
 
@@ -92,37 +91,61 @@ security:
     client:
       clientId: rsw
       clientSecret: rswsecret
-      accessTokenUri: ${host.authServer}/oauth/token
-      userAuthorizationUri: ${host.authServer}/oauth/authorize
+      accessTokenUri: ${gateway.services.auth}/oauth/token
+      userAuthorizationUri: ${gateway.services.auth}/oauth/authorize
     resource:
-      userInfoUri: ${host.authServer}/user
-  basic:
-    enabled: false
-  sessions: stateless
-
-# this is done to avoid cookie domain/path confusion
-server:
-  context-path: /gw
+      userInfoUri: ${gateway.services.auth}/user
 
 ---
-
 spring:
   profiles: rossjwt
 
-# Internal Auth server using JWT tokens
 security:
   oauth2:
     client:
       clientId: rsw
       clientSecret: rswsecret
-      accessTokenUri: ${host.authServer}/oauth/token
-      userAuthorizationUri: ${host.authServer}/oauth/authorize
+      accessTokenUri: ${gateway.services.auth}/oauth/token
+      userAuthorizationUri: ${gateway.services.auth}/oauth/authorize
     resource:
       jwt:
         keyValue: abracadabra
-  basic:
-    enabled: false
-  sessions: stateless
+
+---
+spring:
+  profiles: nosso
+
+#
+# The proxy.auth.routes properties dictate downstream token handling properties when @EnableOAuth2Sso is in effect.
+# Note that to use passthru, Spring security would need to be disabled on the Gateway since the security filters
+# are protecting Zuul, which triggers oauth2 token exchanges in this case
+#   Values:
+#     oauth2 : (default) token relay, for services that act as clients and want their own token
+#     passthru: bearer token passed through as-is to downstream service
+#     none: no token is passed through
+#
+proxy:
+  auth:
+    routes:
+      product-service: passthru
+
+---
+spring:
+  profiles: sso
+
+#
+# The proxy.auth.routes properties dictate downstream token handling properties when @EnableOAuth2Sso is in effect.
+# Note that to use passthru, Spring security would need to be disabled on the Gateway since the security filters
+# are protecting Zuul, which triggers oauth2 token exchanges in this case
+#   Values:
+#     oauth2 : (default) token relay, for services that act as clients and want their own token
+#     passthru: bearer token passed through as-is to downstream service
+#     none: no token is passed through
+#
+proxy:
+  auth:
+    routes:
+      product-service: oauth2
 
 # this is done to avoid cookie domain/path confusion
 server:

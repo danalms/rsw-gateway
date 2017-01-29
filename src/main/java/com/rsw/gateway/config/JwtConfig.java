@@ -17,7 +17,7 @@ import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
  */
 @Configuration
 @Profile(value = "rossjwt")
-public class InternalJwtConfig {
+public class JwtConfig {
 
     @Value("${security.oauth2.resource.jwt.keyValue}")
     private String signingKey;

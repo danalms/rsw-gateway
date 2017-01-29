@@ -1,20 +1,50 @@
 package com.rsw.gateway.config;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.oauth2.client.DefaultOAuth2ClientContext;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
-import org.springframework.security.oauth2.client.token.grant.implicit.ImplicitResourceDetails;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
+import org.springframework.context.annotation.Profile;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 
 
 /**
  * Created by DAlms on 11/13/16.
  */
-//@Configuration
+@Configuration
 //@EnableOAuth2Client
-public class ResourceServerConfig {
+@EnableResourceServer
+@Profile(value = "nosso")
+public class ResourceServerConfig extends WebSecurityConfigurerAdapter {
 
+    /**
+     * permit swagger UI and reveal of the API contract for unauthenticated users
+     * invoking the API still requires an oauth2 token of course
+     * @param web
+     * @throws Exception
+     */
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring().antMatchers("/", "/v2/api-docs", "/swagger/**", "/swagger-resources/**",
+                "/swagger-ui.html", "/webjars/**", "/util/**");
+    }
+
+    /**
+     * this is mostly redundant with default behavior, but explicitly disabling csrf here temporarily
+     * @param http
+     * @throws Exception
+     */
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.antMatcher("/**")
+                .authorizeRequests()
+                .anyRequest().authenticated()
+                .and().csrf().disable();
+    }
+
+    // Experimented with trying to dictate what grant type is to be used between the gateway as resource server,
+    // and the auth server - when running in SSO mode. The comments below are in relation to that...
+    //
     // This isn't enough to override the type of resource details to alter the grant type being requested
     // by the SSO Resource Server...
     // Either need to extend/override UserInfoRestTemplateFactory (as I began doing), or back away from

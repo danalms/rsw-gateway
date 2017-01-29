@@ -35,9 +35,9 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 @ApiIgnore
 @RequestMapping(value = "/swagger-resources")
-public class SwaggerAggregateController {
+public class SwaggerResourceController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SwaggerAggregateController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SwaggerResourceController.class);
 
     @Autowired(required = false)
     private SecurityConfiguration securityConfiguration;
@@ -69,7 +69,8 @@ public class SwaggerAggregateController {
         logRequest(request);
 
         List<SwaggerResource> result = Lists.newArrayList();
-        result.add(swaggerResource("Products", "/swagger/product", "2.0"));
+        result.add(swaggerResource("Product", "/swagger/product", "2.0"));
+        result.add(swaggerResource("Token", "/swagger/token", "2.0"));
 
         return new ResponseEntity<List<SwaggerResource>>(result, HttpStatus.OK);
     }
