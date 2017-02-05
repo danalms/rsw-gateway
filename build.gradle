@@ -39,6 +39,7 @@ docker {
 
 task buildDocker(type: Docker, dependsOn: build) {
     push = true
+    // miniserver.local : Nexus hosted docker registry
     tag = "10.0.1.9:8082/rsw-gateway"
     tagVersion = "v1"
     dockerfile = file('src/main/docker/Dockerfile')
