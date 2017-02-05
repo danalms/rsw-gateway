@@ -8,5 +8,7 @@ spring:
   redis:
     host: redis-master
     port: 6379
+  session:
+    store-type: redis
 
 

@@ -1,12 +1,14 @@
 buildscript {
 	ext {
-		springBootVersion = '1.4.1.RELEASE'
+		springBootVersion = '1.5.1.RELEASE'
 	}
     repositories {
 //		mavenCentral()
         maven {
             url "${nexusUrl}/repository/maven-public"
         }
+// Spring Boot 1.5 required using a milestone version of spring cloud dependencies bom to get zuul working
+        maven { url "https://repo.spring.io/milestone" }
     }
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
@@ -15,7 +17,7 @@ buildscript {
 }
 
 apply plugin: 'java'
-apply plugin: 'spring-boot'
+apply plugin: 'org.springframework.boot'
 apply plugin: 'maven'
 apply plugin: 'docker'
 
@@ -54,6 +56,7 @@ repositories {
     maven {
         url "${nexusUrl}/repository/maven-public"
     }
+    maven { url "https://repo.spring.io/milestone" }
 }
 
 uploadArchives {
@@ -86,7 +89,9 @@ dependencies {
 }
 
 dependencyManagement {
+// Spring Boot 1.5.1 requires using a milestone version of spring cloud dependencies bom to avoid zuul problem ...
+//   ... ServletRegistrationBean NoClassDefFound due to bean moving to a different package
 	imports {
-		mavenBom "org.springframework.cloud:spring-cloud-dependencies:Camden.RELEASE"
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:Dalston.M1"
 	}
 }

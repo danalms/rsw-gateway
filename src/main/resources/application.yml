@@ -61,6 +61,10 @@ security:
   basic:
     enabled: false
   sessions: stateless
+  oauth2:
+# oauth2 resource server filter order changed to -1 in Spring Boot 1.5; setting back to previous working order
+    resource:
+      filterOrder: 3
 
 ---
 spring:
