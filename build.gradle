@@ -3,7 +3,7 @@ buildscript {
 		springBootVersion = '1.5.1.RELEASE'
 	}
     repositories {
-//		mavenCentral()
+		mavenCentral()
         maven {
             url "${nexusUrl}/repository/maven-public"
         }
@@ -53,7 +53,7 @@ task buildDocker(type: Docker, dependsOn: build) {
 }
 
 repositories {
-//	mavenCentral()
+    mavenCentral()
     maven {
         url "${nexusUrl}/repository/maven-public"
     }
@@ -86,6 +86,7 @@ dependencies {
     compile('com.fasterxml.jackson.datatype:jackson-datatype-jsr310')
     compile('io.springfox:springfox-swagger2:2.6.0')
     compile('io.springfox:springfox-swagger-ui:2.6.0')
+    compile group: 'org.json', name: 'json', version: '20160810'
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 

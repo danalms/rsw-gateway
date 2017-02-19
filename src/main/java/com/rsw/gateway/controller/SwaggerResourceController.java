@@ -45,7 +45,6 @@ public class SwaggerResourceController {
     @Autowired(required = false)
     private UiConfiguration uiConfiguration;
 
-
     @RequestMapping(value = "/configuration/security")
     ResponseEntity<SecurityConfiguration> securityConfiguration() {
         return new ResponseEntity<SecurityConfiguration>(
@@ -66,7 +65,7 @@ public class SwaggerResourceController {
     @RequestMapping
     public ResponseEntity<List<SwaggerResource>> swaggerResources(HttpServletRequest request) {
 
-        logRequest(request);
+//        logRequest(request);
 
         List<SwaggerResource> result = Lists.newArrayList();
         result.add(swaggerResource("Product", "/swagger/product", "2.0"));

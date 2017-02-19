@@ -16,6 +16,11 @@ gateway:
     token: http://localhost:8085
     auth: http://localhost:9000
     product: http://localhost:8090
+  sessionTracking:
+    enabled: false
+  security:
+    session:
+      timeoutSeconds: 1800
 
 ribbon:
   eureka:
