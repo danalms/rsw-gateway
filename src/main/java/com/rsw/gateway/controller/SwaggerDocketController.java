@@ -19,10 +19,10 @@ import javax.servlet.http.HttpServletRequest;
  * This class acts as a "brute force" proxy forward for the /v2/api-docs Swagger docket info, i.e. bypasses
  * Zuul routing.
  * It's necessary to avoid having Swagger attach the proxy prefix (X-Forwarded-Prefix) that normally is sent downstream
- * in Zuul routing.  For the patient service the prefix would be "/swagger/patient".
+ * in Zuul routing.  For the product service the prefix would be "/swagger/product".
  * When the X-Forwarded-Prefix is seen by Swagger, Swagger prepends the endpoint URI with the forwarded prefix,
- * resulting in something like "/swagger/patient/api/patient", which doesn't represent the real proxied URL we want
- * to make visible to the user in Swagger, e.g. just "/api/patient".
+ * resulting in something like "/swagger/product/api/product", which doesn't represent the real proxied URL we want
+ * to make visible to the user in Swagger, e.g. just "/api/product".
  */
 @RestController
 @RequestMapping("/swagger")
