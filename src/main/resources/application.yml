@@ -47,10 +47,6 @@ zuul:
       path: /util/token/**
       url: ${gateway.services.token}/util/token
 
-# As long as the downstream URI pattern matches the Zuul route (/api/patient), we don't need the special
-# "swagger-patient" routes below for the Swagger-initiated API requests. Retain this in case that changes.
-# See notes in SwaggerDocketController for more info
-
 # Block cookie header fields, but allow Authorization to pass through (disallowed by default)
 # Note: this is mostly pertinent in non-SSO ResourceServer mode; for SSO, gateway will re-write Authorization anyway
   sensitive-headers: Cookie, Set-Cookie
